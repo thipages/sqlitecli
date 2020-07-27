@@ -6,7 +6,7 @@ SQLite CLI wrapper
 
 ## Usage
 ```php
-// Export to CSV
+// index.php
 $cli=new SqliteCli('./database.db');
 $res=$cli->execute(
     "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
@@ -21,6 +21,9 @@ $res=$cli->execute(
 OR
 
 $res=$cli->execute(Orders::exportCsv('data.csv'), 'select id,name from simple;');
+
+// run on server
+php index.php
 ```
 
 ## API
