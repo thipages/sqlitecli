@@ -35,7 +35,7 @@ php index.php
 `execute(...$orders):[boolean,array]` executes sqlite commands (list of [array of] commands)
 `addPrimary($table,$primaryName):[boolean,array]` adds a primary field to an existing table
 
-Note : `execute` method includes a final `.quit` command
+`execute` method includes a final `.quit` command
 
 **Orders class**
 ###### Static methods
