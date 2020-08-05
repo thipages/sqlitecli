@@ -9,6 +9,8 @@ class SqliteCli {
         exec(self::getCommand(...$orders), $output, $ret);
         return [$ret===0,$output];
     }
+    // todo : check for length command lline limits
+    // https://stackoverflow.com/questions/24510707/is-there-any-limit-on-sqlite-query-size
     public function getCommand(...$orders) {
         $orders=self::mergeOrders(...$orders);
         array_push($orders,Orders::quit());
