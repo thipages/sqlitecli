@@ -1,6 +1,7 @@
 <?php
 namespace thipages\sqlitecli;
 // todo : add a feature where the database is backuped before performing create or alter staements
+// it could be a secure execute like executeWithBackup function
 class SqliteCli {
     private $dbPath;
     public function __construct($dbPath) {
