@@ -6,8 +6,25 @@ use thipages\sqlitecli\SqliteCli;
 $tests =[];
 $dbName="test.db";
 $table="addresses_table";
-if (file_exists($dbName)) unlink($dbName);
-if (file_exists('./up/'.$dbName)) unlink('./up/'.$dbName);
+$up='./up/'.$dbName;
+function unlinkDB() {
+    global $dbName,$up;
+    if (file_exists($dbName)) unlink($dbName);
+    if (file_exists($up)) unlink($up);
+}
+unlinkDB();
+// add Field
+$cli=new SqliteCli($dbName);
+$o=Orders::importCsv($table,'addresses.csv',",","on");
+$res=$cli->execute($o);
+$res=$cli->addField($table,'new_field TEXT');
+$res=$cli->execute("UPDATE $table SET new_field='foo' ");
+$res=$cli->execute("select new_field from $table");
+$tests[]= [
+    'addField',
+    ($res[0] && $res[1]==['foo','foo','foo','foo','foo','foo'])
+];
+unlinkDB();
 // add Primary
 $cli=new SqliteCli($dbName);
 $o=Orders::importCsv($table,'addresses.csv',",","on");
@@ -18,6 +35,7 @@ $tests[]= [
     'addPrimary',
     ($res[0] && $res[1]==[1,2,3,4,5,6])
 ];
+
 // export csv manually
 $res=$cli->execute(
     "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
@@ -39,7 +57,7 @@ $tests[]= [
     compare('data2.csv')
 ];
 // export in upper folder
-$cli=new SqliteCli('./up/'.$dbName);
+$cli=new SqliteCli($up);
 $res=$cli->execute(
     "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
     "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",

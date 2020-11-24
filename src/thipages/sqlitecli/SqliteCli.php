@@ -28,6 +28,15 @@ class SqliteCli {
         }
         return $res;
     }
+    public function addField($table,$definition) {
+        $res=$this->execute(".schema $table");
+        if ($res[0]) {
+            $o = Orders::addField($table, join('', $res[1]), $definition);
+            $res = $this->execute($o);
+        }
+        return $res;
+    }
+    
     private static function q($s) {
         return "\"$s\"";
     }

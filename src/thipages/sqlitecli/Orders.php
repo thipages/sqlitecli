@@ -35,12 +35,20 @@ class Orders {
         return "PRAGMA $name=$value;";
     }
     public static function addPrimary($table, $schema, $name, $prefix='old_') {
+        return self::addField($table,$schema,"$name INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL", $prefix);
+        
+    }
+    // todo : implement field positionning
+    public static function addField($table, $schema, $definition, $position=0,$prefix='old_') {
         $old="$prefix$table";
-        $p="\"$name\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,";
+        // puts quotes around name + add comma (first field);
+        $def_array=explode(' ',trim($definition));
+        $def_array[0]='"'.$def_array[0].'"';
+        $def=join(' ',$def_array).',';
         $create=explode('(',$schema);
         $tab1=array_slice($create,0,1);
         $tab2=array_slice($create,1);
-        $tab2[0]=$p.$tab2[0];
+        $tab2[0]=$def.$tab2[0];
         $create=join(
             '(',
             array_merge($tab1, $tab2)

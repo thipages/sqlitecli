@@ -8,7 +8,7 @@ SQLite CLI wrapper
 ```php
 // index.php
 $cli=new SqliteCli('./database.db');
-$res=$cli->execute(
+$cli->execute(
     "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
     "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
     '.mode csv',
@@ -17,12 +17,13 @@ $res=$cli->execute(
     '.output data.csv',
     'select id,name from simple;'
 );
+// OR
+execute(Orders::importCsv('simple','data.csv', ',', true);
 
-OR
+//THEN
+execute(Orders::exportCsv('data.csv'), 'select id,name from simple limit 3;');
 
-$res=$cli->execute(Orders::exportCsv('data.csv'), 'select id,name from simple;');
-
-// run on server
+// run it on server
 php index.php
 ```
 
@@ -33,7 +34,8 @@ php index.php
 `SqliteCli($dbPath)`
 ###### Methods
 `execute(...$orders):[boolean,array]` executes sqlite commands (list of [array of] commands)
-`addPrimary($table,$primaryName):[boolean,array]` adds a primary field to an existing table
+`addPrimary($table,$primaryName):[boolean,array]` adds a primary field to an existing table (first position)
+`addField($table,$definition):[boolean,array]` adds a field to an existing table (first position)
 
 `execute` method includes a final `.quit` command
 
