@@ -38,6 +38,12 @@ class Orders {
         return self::addField($table,$schema,"$name INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL", $prefix);
         
     }
+    // todo : evaluate the integration of https://github.com/maghead/sqlite-parser
+    public static function parseSchema($schema) {
+        $temp=explode('(',$schema);
+        $tab1=array_slice($temp,0,1);
+        $tab2=explode(',',array_slice($temp,1));
+    }
     // todo : implement field positionning
     public static function addField($table, $schema, $definition, $position=0,$prefix='old_') {
         $old="$prefix$table";
