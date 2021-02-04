@@ -4,6 +4,7 @@ namespace thipages\sqlitecli;
 // it could be a secure execute like executeWithBackup function
 class SqliteCli {
     private $dbPath;
+    // todo : add a second $option->fkOn=true argument adding by default "PRAGMA foreign_keys=on;" to command orders
     public function __construct($dbPath) {
         $this->dbPath=$dbPath;
     }
