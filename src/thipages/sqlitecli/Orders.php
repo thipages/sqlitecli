@@ -9,6 +9,7 @@ class Orders {
             ".import $csvPath $table"
         ];
     }
+    // todo : not working, need to add sql query argument
     public static function exportCsv($csvPath, $separator=',', $headers='on') {
         return [
             ".mode csv",
