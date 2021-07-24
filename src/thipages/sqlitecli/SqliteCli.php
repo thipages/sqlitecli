@@ -8,6 +8,17 @@ class SqliteCli {
     public function __construct($dbPath) {
         $this->dbPath=$dbPath;
     }
+    // todo : multiple lines orders fail. Need to remove \n from each $orders item;
+    // example :
+    /*
+     'CREATE TABLE contacts (
+	contact_id INTEGER PRIMARY KEY,
+	first_name TEXT NOT NULL,
+	last_name TEXT NOT NULL,
+	email TEXT NOT NULL UNIQUE,
+	phone TEXT NOT NULL UNIQUE
+);'
+     */
     public function execute(...$orders) {
         exec(self::getCommand(...$orders), $output, $ret);
         return [$ret===0,$output];
