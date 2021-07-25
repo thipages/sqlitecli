@@ -9,13 +9,14 @@ class Orders {
             ".import $csvPath $table"
         ];
     }
-    // todo : add sql query argument
-    public static function exportCsv($csvPath, $separator=',', $headers='on') {
+    public static function exportCsv($sql,$csvPath, $separator=',', $headers='on') {
         return [
             ".mode csv",
             ".separator $separator",
             ".headers $headers",
-            ".output $csvPath"
+            ".output $csvPath",
+            $sql,
+            ".mode list" // set back to default mode
         ];
     }
     public static function quit() {

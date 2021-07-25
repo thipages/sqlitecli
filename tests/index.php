@@ -51,7 +51,7 @@ $tests[]= [
     compare('data.csv')
 ]; 
 // export csv through the export csv method
-$res=$cli->execute(Orders::exportCsv('data2.csv'), 'select id,name from simple;');
+$res=$cli->execute(Orders::exportCsv('select id,name from simple;','data2.csv'));
 $tests[]= [
     'export csv2',
     compare('data2.csv')
