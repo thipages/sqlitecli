@@ -19,6 +19,19 @@ class SqliteCli {
 	phone TEXT NOT NULL UNIQUE
 );'
      */
+    private function removeEOL($s) {
+        return preg_replace( "/\r|\n/", " ", $s );
+    }
+    private function cleanOrder($s) {
+        if (is_array($s)) {
+            $r=[];
+            foreach ($s as $item) $r[]=$this->removeEOL($item);
+            return $r;
+        } else {
+            return $this->removeEOL($s);
+        }
+
+    }
     public function execute(...$orders) {
         exec(self::getCommand(...$orders), $output, $ret);
         return [$ret===0,$output];
@@ -28,7 +41,11 @@ class SqliteCli {
     public function getCommand(...$orders) {
         $orders=self::mergeOrders(...$orders);
         array_push($orders,Orders::quit());
-        foreach ($orders as &$order) $order=self::q($order);
+        foreach ($orders as &$order) {
+            $order=self::q($order);
+            // EOL characters removal needed
+            $this->cleanOrder($order);
+        }
         array_unshift($orders,'sqlite3',self::q($this->dbPath));
         return join(' ',$orders);
     }
