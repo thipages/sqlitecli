@@ -6,7 +6,8 @@ class Orders {
             ".mode csv",
             ".separator $separator",
             ".headers $headers",
-            ".import $csvPath $table"
+            ".import $csvPath $table",
+            ".mode list" // set back to default mode
         ];
     }
     public static function exportCsv($sql,$csvPath, $separator=',', $headers='on') {
