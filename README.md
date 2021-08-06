@@ -39,7 +39,7 @@ $cli=new SqliteCli('./database.db');
 $cli->execute(
     "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
     "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
-    "SELECT name FROM simple WHERE id=1;
+    "SELECT name FROM simple WHERE id=1;",
     function($res) {
         // Set 'Paul' to all records
         return "UPDATE simple SET name='$res'";
