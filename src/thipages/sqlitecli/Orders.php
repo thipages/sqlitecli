@@ -2,13 +2,13 @@
 namespace thipages\sqlitecli;
 class Orders {
     public static function importCsv($table, $csvPath, $separator=',', $headers='on') {
-        return [
+        return [[
             ".mode csv",
             ".separator $separator",
             ".headers $headers",
             ".import $csvPath $table",
             ".mode list" // set back to default mode
-        ];
+        ]];
     }
     public static function exportCsv($sql,$csvPath, $separator=',', $headers='on') {
         return [
@@ -73,5 +73,7 @@ class Orders {
             "DROP TABLE $old;"
         ]);
     }
-
+    public static function register ($name,$order) {
+        return new RegistryElement($name,$order);
+    }
 }
