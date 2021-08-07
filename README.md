@@ -65,3 +65,5 @@ $cli->execute(
 `exportCsv($csvPath, $separator=',', $headers='on'):array` returns an array of commands for csv export
 
 `mergeCsvList($table,$csvPaths, $delimiter=',')` merges csv Files into `$table`. Files need to have the same fields. `$delimiter` can be an array matching `$csvPaths`
+
+`getFieldList($table)` returns an array of the fields of `$table`
