@@ -92,12 +92,12 @@ function csvAPIExport() {
         [
             "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
             "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
-            Orders::exportCsv('select id,name from simple;','data2.csv')
+            Orders::exportCsv('select id,name from simple;','data_bis.csv')
         ]
     );
     return [
         __FUNCTION__,
-        compare('data2.csv')
+        compare('data_bis.csv')
     ];
 }
 function csvUpperFolderExport() {
@@ -160,6 +160,22 @@ function test_chainedFunctions() {
         join('',$res[1])==='111'
     ];
 }
+function test_mergeCsv() {
+    global $dbName;
+    $cli=new SqliteCli($dbName);
+    $res=$cli->execute(
+        [
+            Orders::mergeCsvList('merged',['./data.csv','./data2.csv'],','),
+            "SELECT count(*) from merged;"
+        ]
+    );
+    //echo(is_string($res[1][0]) ?'___s':'___ns');
+    // todo : issue : count(*) is a string not a number!?
+    return [
+        __FUNCTION__,
+        (int)$res[1][0]===6
+    ];
+}
 function compare($csv) {
     return str_replace("\r","",file_get_contents($csv))=="id,name\n1,Paul\n2,Jack\n3,Charlie\n";
 }
@@ -178,6 +194,7 @@ unlinkDB();
 $tests[]=test_function();
 unlinkDB();
 $tests[]=test_chainedFunctions();
+$tests[]=test_mergeCsv();
 foreach($tests as $t) {
     $s=[$t[0], $t[1]?'ok':'nok'];
     echo (join(' : ',$s)."\n");

@@ -84,10 +84,11 @@ class Orders {
             $tids[]= ($i===0) ? $table : uniqid('temp_');
             $orders[]=Orders::importCsv($tids[$i],$csvPaths[$i],$delimiters[$i]);
         }
-        $orders[]='.headers off';
-        $orders[]='.mode list';
+        //$orders[]='.headers off';
+        //$orders[]='.mode list';
         for ($i=1;$i<count($csvPaths);$i++) {
-            $orders[]="SELECT name FROM PRAGMA_TABLE_INFO('$table');";
+            //$orders[]="SELECT name FROM PRAGMA_TABLE_INFO('$table');";
+            $orders[]=self::getFieldList($table);
             $orders[]=self::insert($tids[$i], $table);
         }
         for ($i=1;$i<count($csvPaths);$i++) {
@@ -119,6 +120,12 @@ class Orders {
                 return self::_addField($table, join('', $res), $definition);
             }
 
+        ];
+    }
+    public static function getFieldList($table) {
+        return [
+            '.headers off',
+            "SELECT name FROM PRAGMA_TABLE_INFO('$table');"
         ];
     }
 }
