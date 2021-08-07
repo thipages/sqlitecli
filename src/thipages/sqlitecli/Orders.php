@@ -84,10 +84,9 @@ class Orders {
             $tids[]= ($i===0) ? $table : uniqid('temp_');
             $orders[]=Orders::importCsv($tids[$i],$csvPaths[$i],$delimiters[$i]);
         }
-        //$orders[]='.headers off';
-        //$orders[]='.mode list';
+        $orders[]='.headers off';
+        $orders[]='.mode list'; // todo : clarify mode setup in the project
         for ($i=1;$i<count($csvPaths);$i++) {
-            //$orders[]="SELECT name FROM PRAGMA_TABLE_INFO('$table');";
             $orders[]=self::getFieldList($table);
             $orders[]=self::insert($tids[$i], $table);
         }
