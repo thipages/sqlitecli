@@ -114,6 +114,48 @@ function csvUpperFolderExport() {
     ];
 
 }
+function test_function() {
+    global $dbName;
+    $cli=new SqliteCli($dbName);
+    $res=$cli->execute(
+        [
+            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+            "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
+            "SELECT name from simple where id=1;",
+            function ($res) {
+                return "UPDATE simple SET name='$res[0]'";
+            },
+            "SELECT name from simple;"
+        ]
+    );
+    return [
+        __FUNCTION__,
+        join('',$res[1])==='PaulPaulPaul'
+    ];
+}
+function test_chainedFunctions() {
+    global $dbName;
+    $cli=new SqliteCli($dbName);
+    $res=$cli->execute(
+        [
+            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+            "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
+            "SELECT name from simple where id=1;",
+            function ($res) {
+                return "UPDATE simple SET name='$res[0]'";
+            },
+            "SELECT id from simple where id=1;",
+            function ($res) {
+                return "UPDATE simple SET name='$res[0]'";
+            },
+            "SELECT name from simple;",
+        ]
+    );
+    return [
+        __FUNCTION__,
+        join('',$res[1])==='111'
+    ];
+}
 function compare($csv) {
     return str_replace("\r","",file_get_contents($csv))=="id,name\n1,Paul\n2,Jack\n3,Charlie\n";
 }
@@ -128,7 +170,10 @@ unlinkDB();
 $tests[]=csvAPIExport();
 unlinkDB();
 $tests[]=csvUpperFolderExport();
-
+unlinkDB();
+$tests[]=test_function();
+unlinkDB();
+$tests[]=test_chainedFunctions();
 foreach($tests as $t) {
     $s=[$t[0], $t[1]?'ok':'nok'];
     echo (join(' : ',$s)."\n");
