@@ -73,9 +73,6 @@ class Orders {
             "DROP TABLE $old;"
         ]);
     }
-    public static function register ($name,$order) {
-        return new RegistryElement($name,$order);
-    }
     public static function mergeCsvList($table,$csvPaths, $delimiter=','){
         if (is_string($delimiter)) {
             foreach ($csvPaths as $path) $delimiters[]=$delimiter;
@@ -103,9 +100,7 @@ class Orders {
     private static function insert ($sourceDb, $targetDb) {
         return function ($res) use ($sourceDb, $targetDb) {
             $propList=join(',',$res);
-            $sql= "INSERT INTO '$targetDb' ($propList) select $propList from '$sourceDb';";
-            echo($sql);
-            return $sql;
+            return "INSERT INTO '$targetDb' ($propList) select $propList from '$sourceDb';";
         };
     }
 }
