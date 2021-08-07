@@ -1,9 +1,5 @@
 <?php
 namespace thipages\sqlitecli;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
-use thipages\sqlitecli\Registry;
-
 /**
  * TODO : executeWithBackup()
  * Add a feature where the database is backuped before performing create or alter statements
@@ -14,7 +10,7 @@ class SqliteCli {
     private $dbPath;
     private $registry;
     /**
-     * TODO : add options ( fkOn )
+     * TODO : add options ( fkOn )?
      * add $option["fkOn"]=true, adding by default "PRAGMA foreign_keys=on;" to command orders?
      *        OR/AND
      * add a new Order fkOn($on=true) -> "PRAGMA foreign_keys=on/off;"

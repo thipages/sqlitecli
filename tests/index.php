@@ -26,14 +26,21 @@ function test_subArrays() {
         [[1,2,3,4]]
     ];
     $valid=[];
+    $allValid=true;
     for ($i = 0; $i<count($test); $i++) {
         $res = Utils::normalizeArray($test[$i]);
         foreach ($res as &$v) {
             if (is_callable($v)) $v = $v();
         }
-        $valid[]=json_encode($res)===json_encode($expected[$i]) ?'ok':'nok';
+        $isValid=json_encode($res)===json_encode($expected[$i]);
+        if (!$isValid) $allValid=false;
+        $valid[]=$isValid ?'ok':'nok';
     }
-    echo(__FUNCTION__.':'.join(' ', $valid)."\n");
+    return [
+        __FUNCTION__,
+        $allValid,
+        join(' ', $valid)."\n"
+    ];
 }
 function addField() {
     global $dbName, $table;
@@ -218,6 +225,6 @@ $tests[]=test_mergeCsv();
 unlinkDB();
 $tests[]=test_registry();
 foreach($tests as $t) {
-    $s=[$t[0], $t[1]?'ok':'NOK'];
+    $s=[$t[1]?'ok ':'NOK ',$t[0],isset($t[2])?"($t[2])":""];
     echo (join(' : ',$s)."\n");
 }
