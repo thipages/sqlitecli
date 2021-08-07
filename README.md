@@ -58,10 +58,12 @@ $cli->execute(
 
 `addField($table,$definition):[boolean,array]` adds a field to an existing table (first position)
 
-`execute` method includes a final `.quit` command
+NOTE : `execute` method includes a final `.quit` command
 
 **Orders class**
 ###### Static methods
 `importCsv($table, $csvPath, $separator=',', $headers='on'):array` returns an array of commands for csv import
 
 `exportCsv($csvPath, $separator=',', $headers='on'):array` returns an array of commands for csv export
+
+`mergeCsvList($table,$csvPaths, $delimiter=',')` merges csv Files into `$table`. Files need to have the same fields. `$delimiter` can be an array matching `$csvPaths`

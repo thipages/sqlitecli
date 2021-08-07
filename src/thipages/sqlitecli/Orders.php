@@ -76,4 +76,36 @@ class Orders {
     public static function register ($name,$order) {
         return new RegistryElement($name,$order);
     }
+    public static function mergeCsvList($table,$csvPaths, $delimiter=','){
+        if (is_string($delimiter)) {
+            foreach ($csvPaths as $path) $delimiters[]=$delimiter;
+        } else {
+            $delimiters=$delimiter;
+        }
+        $tids=[];
+        $orders=[];
+        for ($i=0;$i<count($csvPaths);$i++) {
+            $tids[]= ($i===0) ? $table : uniqid('temp_');
+            $orders[]=Orders::importCsv($tids[$i],$csvPaths[$i],$delimiters[$i]);
+        }
+        $orders[]='.headers off';
+        $orders[]='.mode list';
+        for ($i=1;$i<count($csvPaths);$i++) {
+            $orders[]="SELECT name FROM PRAGMA_TABLE_INFO('$table');";
+            $orders[]=self::insert($tids[$i], $table);
+        }
+        for ($i=1;$i<count($csvPaths);$i++) {
+            $orders[]="DROP TABLE $tids[$i];";
+        }
+        $orders[]="PRAGMA auto_vacuum = FULL;VACUUM;";
+        return $orders;
+    }
+    private static function insert ($sourceDb, $targetDb) {
+        return function ($res) use ($sourceDb, $targetDb) {
+            $propList=join(',',$res);
+            $sql= "INSERT INTO '$targetDb' ($propList) select $propList from '$sourceDb';";
+            echo($sql);
+            return $sql;
+        };
+    }
 }

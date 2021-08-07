@@ -1,6 +1,6 @@
 {
   "name": "thipages/sqlitecli",
-  "version": "v0.4.1",
+  "version": "v0.4.2",
   "description": "SQLite CLI PHP wrapper",
   "type": "library",
   "keywords" : ["php","cli","sqlite","wrapper"],
