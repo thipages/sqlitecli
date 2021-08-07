@@ -43,8 +43,10 @@ function addField() {
     global $dbName, $table;
     $cli=new SqliteCli($dbName);
     $o=Orders::importCsv($table,'addresses.csv',",","on");
-    $res=$cli->execute($o);
-    $res=$cli->addField($table,'new_field TEXT');
+    $res=$cli->execute(
+        $o,
+        Orders::addField($table,'new_field TEXT')
+    );
     $res=$cli->execute("UPDATE $table SET new_field='foo' ");
     $res=$cli->execute("select new_field from $table");
     return [
@@ -56,8 +58,10 @@ function addPrimary() {
     global $dbName, $table;
     $cli=new SqliteCli($dbName);
     $o=Orders::importCsv($table,'addresses.csv',",","on");
-    $res=$cli->execute($o);
-    $res=$cli->addPrimary($table,'id');
+    $res=$cli->execute(
+        $o,
+        Orders::addPrimary($table,'id')
+    );
     $res=$cli->execute("select id from $table");
     return [
         __FUNCTION__,

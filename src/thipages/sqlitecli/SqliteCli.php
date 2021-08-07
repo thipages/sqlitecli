@@ -60,24 +60,4 @@ class SqliteCli {
         }
         return $res;
     }
-    public function addPrimary($table,$primaryName) {
-        return $this->execute(
-            [
-                ".schema $table",
-                function ($res) use ($table, $primaryName) {
-                    return Orders::addPrimary($table, join('', $res), $primaryName);
-                }
-            ]
-        );
-    }
-    public function addField($table,$definition) {
-        return $this->execute([
-            
-                ".schema $table",
-                function ($res) use ($table, $definition) {
-                    return Orders::addField($table, join('', $res), $definition);
-                }
-            
-        ]);
-    }
 }

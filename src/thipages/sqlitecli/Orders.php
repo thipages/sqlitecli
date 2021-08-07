@@ -37,10 +37,6 @@ class Orders {
     public static function setPragma($name, $value) {
         return "PRAGMA $name=$value;";
     }
-    public static function addPrimary($table, $schema, $name, $prefix='old_') {
-        return self::addField($table,$schema,"$name INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL", $prefix);
-        
-    }
     // todo : evaluate the integration of https://github.com/maghead/sqlite-parser
     public static function parseSchema($schema) {
         $temp=explode('(',$schema);
@@ -48,7 +44,7 @@ class Orders {
         $tab2=explode(',',array_slice($temp,1));
     }
     // todo : implement field positionning
-    public static function addField($table, $schema, $definition, $position=0,$prefix='old_') {
+    private static function _addField($table, $schema, $definition, $position=0,$prefix='old_') {
         $old="$prefix$table";
         // puts quotes around name + add comma (first field);
         $def_array=explode(' ',trim($definition));
@@ -72,6 +68,9 @@ class Orders {
             "PRAGMA foreign_keys=on;",
             "DROP TABLE $old;"
         ]);
+    }
+    private static function _addPrimary($table, $schema, $name, $prefix='old_') {
+        return self::_addField($table,$schema,"$name INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL", $prefix);
     }
     public static function mergeCsvList($table,$csvPaths, $delimiter=','){
         if (is_string($delimiter)) {
@@ -102,5 +101,24 @@ class Orders {
             $propList=join(',',$res);
             return "INSERT INTO '$targetDb' ($propList) select $propList from '$sourceDb';";
         };
+    }
+    public static function addPrimary($table,$primaryName) {
+        return
+            [
+                ".schema $table",
+                function ($res) use ($table, $primaryName) {
+                    return self::_addPrimary($table, join('', $res), $primaryName);
+                }
+            ];
+    }
+    public static function addField($table,$definition) {
+        return [
+
+            ".schema $table",
+            function ($res) use ($table, $definition) {
+                return self::_addField($table, join('', $res), $definition);
+            }
+
+        ];
     }
 }

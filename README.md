@@ -52,16 +52,14 @@ $cli->execute(
 ###### Constructor
 `SqliteCli($dbPath)`
 ###### Methods
-`execute(...$orders):[boolean,array]` executes sqlite commands (list of [array of] commands)
+`execute(...$orders):[boolean,array]` executes sqlite commands (list of [array of] commands). This method adds a final `.quit` command
 
+**Orders class**
+###### Static methods
 `addPrimary($table,$primaryName):[boolean,array]` adds a primary field to an existing table (first position)
 
 `addField($table,$definition):[boolean,array]` adds a field to an existing table (first position)
 
-NOTE : `execute` method includes a final `.quit` command
-
-**Orders class**
-###### Static methods
 `importCsv($table, $csvPath, $separator=',', $headers='on'):array` returns an array of commands for csv import
 
 `exportCsv($csvPath, $separator=',', $headers='on'):array` returns an array of commands for csv export
