@@ -32,6 +32,7 @@ php index.php
 ```
 
 ## Advanced usage
+- With functions
 ```php
 /* index.php */
 /* ********* */
@@ -46,6 +47,26 @@ $cli->execute(
     }
 );
 ```
+- With registry
+```php
+/* index.php */
+/* ********* */
+$cli=new SqliteCli('./database.db');
+$reg=$cli->getRegistry();
+$cli->execute(
+    "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+    "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
+    "SELECT name FROM simple WHERE id=1;",
+    $reg->set('QUERY_ID=1'),
+    function($res, $registry) {
+        $newName=$registry->get(''QUERY_ID=1'');
+        return "UPDATE simple SET name='$newName'";
+    }
+);
+```
+
+Both have same results
+
 ## API
 
 **SqliteCli class**
@@ -53,6 +74,8 @@ $cli->execute(
 `SqliteCli($dbPath)`
 ###### Methods
 `execute(...$orders):[boolean,array]` executes sqlite commands (list of [array of] commands). This method adds a final `.quit` command
+
+`getRegistry()` access the registry for saving (`set`) outputs or for retrieval (`get`). see second argument of function (Advanced usage)
 
 **Orders class**
 ###### Static methods

@@ -1,11 +1,6 @@
 <?php
-
-
 namespace thipages\sqlitecli;
-
-
 class Utils {
-    
     private static function _subArrays($a, &$res, &$temp){
         $temp = [];
         if (!is_array($a)) {

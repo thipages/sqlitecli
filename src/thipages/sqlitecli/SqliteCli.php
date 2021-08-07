@@ -2,13 +2,16 @@
 namespace thipages\sqlitecli;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
+use thipages\sqlitecli\Registry;
 // todo : add a feature where the database is backuped before performing create or alter staements
 // it could be a secure execute like executeWithBackup function
 class SqliteCli {
     private $dbPath;
+    private $registry;
     // todo : add a second $option->fkOn=true argument adding by default "PRAGMA foreign_keys=on;" to command orders
     public function __construct($dbPath) {
         $this->dbPath=$dbPath;
+        $this->registry=new Registry();
     }
     // multiple lines orders fail. Need to remove \n from each $orders item;
     private static function removeEOL($s) {
@@ -34,7 +37,7 @@ class SqliteCli {
         if (is_array($order)) {
             $commands = self::normalize($order);
         } else if (is_callable($order)) {
-            $commands = self::normalize($order($args[1]));
+            $commands = self::normalize($order($args[1], $this->registry));
         }
         array_push($commands, Orders::quit());
         array_unshift($commands, 'sqlite3', self::q($this->dbPath));
@@ -59,5 +62,8 @@ class SqliteCli {
             return [false,$i];
         }
         return $res;
+    }
+    public function getRegistry() {
+        return $this->registry;
     }
 }

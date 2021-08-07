@@ -2,14 +2,10 @@
 require('./../src/thipages/sqlitecli/SqliteCli.php');
 require('./../src/thipages/sqlitecli/Orders.php');
 require('./../src/thipages/sqlitecli/Utils.php');
+require('./../src/thipages/sqlitecli/Registry.php');
 use thipages\sqlitecli\Orders;
 use thipages\sqlitecli\SqliteCli;
 use thipages\sqlitecli\Utils;
-// todo : add a test for mergeCsvList
-$tests =[];
-$dbName="test.db";
-$table="addresses_table";
-$up='./up/'.$dbName;
 function unlinkDB() {
     global $dbName,$up;
     if (file_exists($dbName)) unlink($dbName);
@@ -20,12 +16,14 @@ function test_subArrays() {
     $test = [
         1,
         [1],
-        [1,2, $f, [3, 4, $f, 4, 5]]
+        [1,2, $f, [3, 4, $f, 4, 5]],
+        [[1,2],[3,4]]
     ];
     $expected=[
         [[1]],
         [[1]],
-        [[1,2],'A',[3,4],'A',[4,5]]
+        [[1,2],'A',[3,4],'A',[4,5]],
+        [[1,2],[3,4]] // todo : [1,2,3,4]
     ];
     $valid=[];
     for ($i = 0; $i<count($test); $i++) {
@@ -176,10 +174,34 @@ function test_mergeCsv() {
         (int)$res[1][0]===6
     ];
 }
+function test_registry() {
+    global $dbName, $createTable_simple;
+    $cli=new SqliteCli($dbName);
+    $reg=$cli->getRegistry();
+    $res=$cli->execute(
+        [
+            $createTable_simple,
+            "SELECT count(*) from simple;",
+            $reg->set('A')
+        ]
+    );
+    return [
+        __FUNCTION__,
+        (int)$reg->get('A')[0]===3
+    ];
+}
 function compare($csv) {
     return str_replace("\r","",file_get_contents($csv))=="id,name\n1,Paul\n2,Jack\n3,Charlie\n";
 }
-
+// MAIN
+$tests =[];
+$dbName="test.db";
+$table="addresses_table";
+$up='./up/'.$dbName;
+$createTable_simple= [
+    "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+    "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');"
+];
 test_subArrays();
 unlinkDB();
 $tests[]=addField();
@@ -195,7 +217,9 @@ $tests[]=test_function();
 unlinkDB();
 $tests[]=test_chainedFunctions();
 $tests[]=test_mergeCsv();
+unlinkDB();
+$tests[]=test_registry();
 foreach($tests as $t) {
-    $s=[$t[0], $t[1]?'ok':'nok'];
+    $s=[$t[0], $t[1]?'ok':'NOK'];
     echo (join(' : ',$s)."\n");
 }
