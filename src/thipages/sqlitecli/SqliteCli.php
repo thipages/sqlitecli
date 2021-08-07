@@ -3,12 +3,22 @@ namespace thipages\sqlitecli;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use thipages\sqlitecli\Registry;
-// todo : add a feature where the database is backuped before performing create or alter staements
-// it could be a secure execute like executeWithBackup function
+
+/**
+ * TODO : executeWithBackup()
+ * Add a feature where the database is backuped before performing create or alter statements
+ * It could be through a dedicated secure execute : "executeWithBackup" function
+ * database version management could be added through a dedicated class "Backups"
+ */
 class SqliteCli {
     private $dbPath;
     private $registry;
-    // todo : add a second $option->fkOn=true argument adding by default "PRAGMA foreign_keys=on;" to command orders
+    /**
+     * TODO : add options ( fkOn )
+     * add $option["fkOn"]=true, adding by default "PRAGMA foreign_keys=on;" to command orders?
+     *        OR/AND
+     * add a new Order fkOn($on=true) -> "PRAGMA foreign_keys=on/off;"
+     */
     public function __construct($dbPath) {
         $this->dbPath=$dbPath;
         $this->registry=new Registry();
@@ -30,8 +40,6 @@ class SqliteCli {
         $i= new RecursiveIteratorIterator(new RecursiveArrayIterator($a));
         return iterator_to_array($i, $removeDuplicates);
     }
-    // todo : add history of values, eg _execute($order, $args=null, $argsHistory)
-    // todo : add keys to queries for which we want to save a result
     private function _execute($order, $args=null) {
         if (is_string($order)) $order = [$order];
         if (is_array($order)) {

@@ -37,13 +37,13 @@ class Orders {
     public static function setPragma($name, $value) {
         return "PRAGMA $name=$value;";
     }
-    // todo : evaluate the integration of https://github.com/maghead/sqlite-parser
+    // todo : evaluate the integration of https://github.com/maghead/sqlite-parser?
     public static function parseSchema($schema) {
         $temp=explode('(',$schema);
         $tab1=array_slice($temp,0,1);
         $tab2=explode(',',array_slice($temp,1));
     }
-    // todo : implement field positionning
+    // todo : implement field positionning?
     private static function _addField($table, $schema, $definition, $position=0,$prefix='old_') {
         $old="$prefix$table";
         // puts quotes around name + add comma (first field);
