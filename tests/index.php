@@ -16,23 +16,21 @@ function test_subArrays() {
     $test = [
         1,
         [1],
-        [1,2, $f, [3, 4, $f, 4, 5]],
+        [1,2, $f, [3, 4, $f, 5, 6]],
         [[1,2],[3,4]]
     ];
     $expected=[
         [[1]],
         [[1]],
-        [[1,2],'A',[3,4],'A',[4,5]],
-        [[1,2],[3,4]] // todo : [1,2,3,4]
+        [[1,2],'A',[3,4],'A',[5,6]],
+        [[1,2,3,4]]
     ];
     $valid=[];
     for ($i = 0; $i<count($test); $i++) {
-        $res = Utils::subArrays($test[$i]);
-        array_walk_recursive($res,
-            function(&$v) {
-                if (is_callable($v)) $v = $v();
-            }
-        );
+        $res = Utils::normalizeArray($test[$i]);
+        foreach ($res as &$v) {
+            if (is_callable($v)) $v = $v();
+        }
         $valid[]=json_encode($res)===json_encode($expected[$i]) ?'ok':'nok';
     }
     echo(__FUNCTION__.':'.join(' ', $valid)."\n");
