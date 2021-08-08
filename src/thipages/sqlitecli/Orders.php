@@ -38,11 +38,7 @@ class Orders {
         return "PRAGMA $name=$value;";
     }
     // todo : evaluate the integration of https://github.com/maghead/sqlite-parser?
-    public static function parseSchema($schema) {
-        $temp=explode('(',$schema);
-        $tab1=array_slice($temp,0,1);
-        $tab2=explode(',',array_slice($temp,1));
-    }
+    public static function parseSchema($schema) {}
     // todo : implement field positionning?
     private static function _addField($table, $schema, $definition, $position=0,$prefix='old_') {
         $old="$prefix$table";
@@ -72,6 +68,12 @@ class Orders {
     private static function _addPrimary($table, $schema, $name, $prefix='old_') {
         return self::_addField($table,$schema,"$name INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL", $prefix);
     }
+    private static function _insert ($sourceDb, $targetDb) {
+        return function ($res) use ($sourceDb, $targetDb) {
+            $propList=join(',',$res);
+            return "INSERT INTO '$targetDb' ($propList) select $propList from '$sourceDb';";
+        };
+    }
     public static function mergeCsvList($table,$csvPaths, $delimiter=','){
         if (is_string($delimiter)) {
             foreach ($csvPaths as $path) $delimiters[]=$delimiter;
@@ -86,21 +88,19 @@ class Orders {
         }
         $orders[]='.headers off';
         $orders[]='.mode list'; // todo : clarify mode setup in the project
+        for ($i=0;$i<count($csvPaths);$i++) {
+            $orders[]=self::getFieldList($tids[$i]);
+            $orders[]=self::getFieldList($tids[$i]);
+        }
         for ($i=1;$i<count($csvPaths);$i++) {
             $orders[]=self::getFieldList($table);
-            $orders[]=self::insert($tids[$i], $table);
+            $orders[]=self::_insert($tids[$i], $table);
         }
         for ($i=1;$i<count($csvPaths);$i++) {
             $orders[]="DROP TABLE $tids[$i];";
         }
         $orders[]="PRAGMA auto_vacuum = FULL;VACUUM;";
         return $orders;
-    }
-    private static function insert ($sourceDb, $targetDb) {
-        return function ($res) use ($sourceDb, $targetDb) {
-            $propList=join(',',$res);
-            return "INSERT INTO '$targetDb' ($propList) select $propList from '$sourceDb';";
-        };
     }
     public static function addPrimary($table,$primaryName) {
         return
@@ -121,10 +121,15 @@ class Orders {
 
         ];
     }
-    public static function getFieldList($table) {
+    public static function getFieldList($table, $registerKey=null) {
         return [
             '.headers off',
             "SELECT name FROM PRAGMA_TABLE_INFO('$table');"
         ];
+    }
+    public static function registerAs($key){
+        return function ($res, $registry) use($key) {
+            $registry->set($key,$res);
+        };
     }
 }

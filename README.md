@@ -52,12 +52,11 @@ $cli->execute(
 /* index.php */
 /* ********* */
 $cli=new SqliteCli('./database.db');
-$reg=$cli->getRegistry();
 $cli->execute(
     "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
     "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
     "SELECT name FROM simple WHERE id=1;",
-    $reg->set('QUERY_ID=1'),
+    Orders::registerAs('QUERY_ID=1'),
     function($res, $registry) {
         $newName=$registry->get(''QUERY_ID=1'');
         return "UPDATE simple SET name='$newName'";
@@ -75,7 +74,7 @@ Both have same results
 ###### Methods
 `execute(...$orders):[boolean,array]` executes sqlite commands (list of [array of] commands). This method adds a final `.quit` command
 
-`getRegistry()` access the registry for saving (`set`) outputs or for retrieval (`get`). see second argument of function (Advanced usage)
+`getRegistry($key=null)` get the registry ouput value of `$key` or if null the registry as an associated array.
 
 **Orders class**
 ###### Static methods
@@ -90,3 +89,5 @@ Both have same results
 `mergeCsvList($table,$csvPaths, $delimiter=',')` merges csv Files into `$table`. Files need to have the same fields. `$delimiter` can be an array matching `$csvPaths`
 
 `getFieldList($table)` returns an array of the fields of `$table`
+
+`registerAs($key)` associates the previous output command to `$key` in the registry

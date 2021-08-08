@@ -11,6 +11,10 @@ function unlinkDB() {
     if (file_exists($dbName)) unlink($dbName);
     if (file_exists($up)) unlink($up);
 }
+function compare($csv) {
+    return str_replace("\r","",file_get_contents($csv))=="id,name\n1,Paul\n2,Jack\n3,Charlie\n";
+}
+//
 function test_subArrays() {
     $f = function () {return 'A';};
     $test = [
@@ -39,10 +43,10 @@ function test_subArrays() {
     return [
         __FUNCTION__,
         $allValid,
-        join(' ', $valid)."\n"
+        join(' ', $valid)
     ];
 }
-function addField() {
+function test_addField() {
     global $dbName, $table;
     $cli=new SqliteCli($dbName);
     $o=Orders::importCsv($table,'addresses.csv',",","on");
@@ -57,7 +61,7 @@ function addField() {
         ($res[0] && $res[1]==['foo','foo','foo','foo','foo','foo'])
     ];    
 }
-function addPrimary() {
+function test_addPrimary() {
     global $dbName, $table;
     $cli=new SqliteCli($dbName);
     $o=Orders::importCsv($table,'addresses.csv',",","on");
@@ -71,7 +75,7 @@ function addPrimary() {
         ($res[0] && $res[1]==[1,2,3,4,5,6])
     ];    
 }
-function csvManualExport() {
+function test_csvManualExport() {
     global $dbName;
     $cli=new SqliteCli($dbName);
     $res=$cli->execute(
@@ -88,7 +92,7 @@ function csvManualExport() {
         compare('data.csv')
     ];    
 }
-function csvAPIExport() {
+function test_csvAPIExport() {
     global $dbName;
     $cli=new SqliteCli($dbName);
     $res=$cli->execute(
@@ -103,7 +107,23 @@ function csvAPIExport() {
         compare('data_bis.csv')
     ];
 }
-function csvUpperFolderExport() {
+function test_mergeCsv() {
+    global $dbName;
+    $cli=new SqliteCli($dbName);
+    $res=$cli->execute(
+        [
+            Orders::mergeCsvList('merged',['./data.csv','./data2.csv'],','),
+            "SELECT count(*) from merged;"
+        ]
+    );
+    //echo(is_string($res[1][0]) ?'___s':'___ns');
+    // todo : issue : count(*) is a string not a number!?
+    return [
+        __FUNCTION__,
+        (int)$res[1][0]===6
+    ];
+}
+function test_csvUpperFolderExport() {
     global $dbName;
     $cli = new SqliteCli($dbName);
     $res=$cli->execute(
@@ -163,40 +183,20 @@ function test_chainedFunctions() {
         join('',$res[1])==='111'
     ];
 }
-function test_mergeCsv() {
-    global $dbName;
-    $cli=new SqliteCli($dbName);
-    $res=$cli->execute(
-        [
-            Orders::mergeCsvList('merged',['./data.csv','./data2.csv'],','),
-            "SELECT count(*) from merged;"
-        ]
-    );
-    //echo(is_string($res[1][0]) ?'___s':'___ns');
-    // todo : issue : count(*) is a string not a number!?
-    return [
-        __FUNCTION__,
-        (int)$res[1][0]===6
-    ];
-}
 function test_registry() {
     global $dbName, $createTable_simple;
     $cli=new SqliteCli($dbName);
-    $reg=$cli->getRegistry();
     $res=$cli->execute(
         [
             $createTable_simple,
             "SELECT count(*) from simple;",
-            $reg->set('A')
+            Orders::registerAs('A')
         ]
     );
     return [
         __FUNCTION__,
-        (int)$reg->get('A')[0]===3
+        (int)$cli->getRegistry('A')[0]===3
     ];
-}
-function compare($csv) {
-    return str_replace("\r","",file_get_contents($csv))=="id,name\n1,Paul\n2,Jack\n3,Charlie\n";
 }
 // MAIN
 $tests =[];
@@ -207,16 +207,16 @@ $createTable_simple= [
     "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
     "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');"
 ];
-test_subArrays();
+$tests[]=test_subArrays();
 unlinkDB();
-$tests[]=addField();
+$tests[]=test_addField();
 unlinkDB();
-$tests[]=addPrimary();
-$tests[]=csvManualExport();
+$tests[]=test_addPrimary();
+$tests[]=test_csvManualExport();
 unlinkDB();
-$tests[]=csvAPIExport();
+$tests[]=test_csvAPIExport();
 unlinkDB();
-$tests[]=csvUpperFolderExport();
+$tests[]=test_csvUpperFolderExport();
 unlinkDB();
 $tests[]=test_function();
 unlinkDB();
@@ -225,6 +225,6 @@ $tests[]=test_mergeCsv();
 unlinkDB();
 $tests[]=test_registry();
 foreach($tests as $t) {
-    $s=[$t[1]?'ok ':'NOK ',$t[0],isset($t[2])?"($t[2])":""];
+    $s=[$t[1]?'ok ':'NOK ',$t[0],isset($t[2])?"$t[2]":""];
     echo (join(' : ',$s)."\n");
 }

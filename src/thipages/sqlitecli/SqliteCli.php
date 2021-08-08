@@ -63,7 +63,7 @@ class SqliteCli {
         }
         return $res;
     }
-    public function getRegistry() {
-        return $this->registry;
+    public function getRegistry($key=null) {
+        return $this->registry->get($key);
     }
 }
