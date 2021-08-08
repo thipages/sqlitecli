@@ -1,12 +1,12 @@
 <?php
 namespace thipages\sqlitecli;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
-
-/**
- * TODO : improve array reduction, see tests [[1,2],[3,4]]-> [1,2,3,4]
- */
 class Utils {
+    /*
+     *  returns a two dimensional object array from a ".mode json" result
+     */
+    public static function toObject($jsonRes) {
+        return json_decode(join('',$jsonRes));
+    }
     public static function flattenArray($a){
         if (!is_array($a)) return [$a];
         $result = [];

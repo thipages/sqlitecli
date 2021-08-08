@@ -49,6 +49,7 @@ function test_subArrays() {
 function test_addField() {
     global $dbName, $table;
     $cli=new SqliteCli($dbName);
+    echo($cli->getVersion()."\n");
     $o=Orders::importCsv($table,'addresses.csv',",","on");
     $res=$cli->execute(
         $o,

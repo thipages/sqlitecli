@@ -32,7 +32,7 @@ php index.php
 ```
 
 ## Advanced usage
-- With functions
+- with functions only
 ```php
 /* index.php */
 /* ********* */
@@ -47,7 +47,7 @@ $cli->execute(
     }
 );
 ```
-- With registry
+- with functions and registry
 ```php
 /* index.php */
 /* ********* */
@@ -64,7 +64,7 @@ $cli->execute(
 );
 ```
 
-Both have same results
+Same result for both.
 
 ## API
 
@@ -91,3 +91,5 @@ Both have same results
 `getFieldList($table)` returns an array of the fields of `$table`
 
 `registerAs($key)` associates the previous output command to `$key` in the registry
+
+`unregister(...$keys)` associates the previous output command to `$key` in the registry

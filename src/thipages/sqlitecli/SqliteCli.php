@@ -9,6 +9,10 @@ namespace thipages\sqlitecli;
 class SqliteCli {
     private $dbPath;
     private $registry;
+    private $version;
+    public function getVersion(){
+        return $this->version;
+    }
     /**
      * TODO : add options ( fkOn )?
      * add $option["fkOn"]=true, adding by default "PRAGMA foreign_keys=on;" to command orders?
@@ -18,6 +22,8 @@ class SqliteCli {
     public function __construct($dbPath) {
         $this->dbPath=$dbPath;
         $this->registry=new Registry();
+        $res=$this->execute('select sqlite_version()');
+        $this->version=$res[1][0];
     }
     // multiple lines orders fail. Need to remove \n from each $orders item;
     private static function removeEOL($s) {
@@ -44,7 +50,7 @@ class SqliteCli {
         exec(join(' ', $commands), $output, $ret);
         return [$ret === 0, $output];
     }
-    // todo : check for length command lline limits
+    // todo : check for length command line limits
     // https://stackoverflow.com/questions/24510707/is-there-any-limit-on-sqlite-query-size
     public function execute(...$orders) {
         $error=false;
@@ -59,6 +65,7 @@ class SqliteCli {
             echo("SQLITECLI ERROR (command)\n");
         } else if ($error) {
             echo("SQLITECLI ERROR (command #$i)\n");
+            // todo : add a conditional print_r($_orders[$i]);
             return [false,$i];
         }
         return $res;
