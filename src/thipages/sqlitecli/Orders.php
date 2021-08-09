@@ -122,7 +122,9 @@ class Orders {
         };
         for ($i=1;$i<count($csvPaths);$i++) {
             $orders[]=self::_insert_smart($tableIds[$i],$tableIds[0],$KEYS[0]);
+            $orders[]="DROP TABLE $tableIds[$i];";
         }
+        $orders[]='PRAGMA auto_vacuum = FULL;VACUUM;';
         $list=$tableIds;
         $list[]=$KEYS[0];$list[]=$KEYS[1];
         // todo : implement namespace
