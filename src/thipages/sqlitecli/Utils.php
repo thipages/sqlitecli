@@ -7,7 +7,7 @@ class Utils {
     public static function toObject($jsonRes) {
         return json_decode(join('',$jsonRes));
     }
-    public static function unsetByValue($array, $value) {
+    public static function unsetByValue(&$array, $value) {
         if (($key = array_search($value, $array)) !== false) {
             unset($array[$key]);
             return true;
