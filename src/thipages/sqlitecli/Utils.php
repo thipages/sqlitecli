@@ -7,6 +7,14 @@ class Utils {
     public static function toObject($jsonRes) {
         return json_decode(join('',$jsonRes));
     }
+    public static function unsetByValue($array, $value) {
+        if (($key = array_search($value, $array)) !== false) {
+            unset($array[$key]);
+            return true;
+        } else {
+            return false;
+        }
+    }
     public static function flattenArray($a){
         if (!is_array($a)) return [$a];
         $result = [];
