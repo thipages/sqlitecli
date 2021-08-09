@@ -88,6 +88,7 @@ class Orders {
     // todo : add option : merging all fields (the current case) or to get the common set
     public static function mergeCsvList($table,$csvPaths, $delimiter=','){
         $tableIds=[];$orders=[];$delimiters=[];
+        $sourceField='url_csv';
         $namespace=__FUNCTION__;
         $KEYS=['INTER', 'DIFF'];
         if (is_string($delimiter)) {
@@ -99,6 +100,8 @@ class Orders {
         for ($i=0;$i<count($csvPaths);$i++) {
             $tableIds[]= $i===0?$table:uniqid('temp_');
             $orders[]=Orders::importCsv($tableIds[$i],$csvPaths[$i],$delimiters[$i]);
+            $orders[]= Orders::addField($tableIds[$i], "$sourceField TEXT");//$csvPaths[$i]
+            $orders[]=Orders::fillColumn($tableIds[$i],$sourceField,$csvPaths[$i]);
             $orders[]=self::getFieldList($tableIds[$i]);//($namespace.':'.$tableIds[$i]);
             $orders[]=self::registerAs($tableIds[$i]);
         }
@@ -150,7 +153,21 @@ class Orders {
 
         ];
     }
-    public static function getFieldList($table, $registerKey=null) {
+    public static function fillColumn_calc($table, $field, $calcValue, $orders) {
+        return [
+            $orders,
+            function ($res,$registry) use($table,$field,$calcValue){
+                $c=$calcValue($res,$registry);
+                return "UPDATE $table SET $field=$c;";
+            }
+        ];
+    }
+    public static function fillColumn($table, $field, $value) {
+        return function () use($table,$field,$value){
+                return "UPDATE $table SET $field='$value';";
+            };
+    }
+    public static function getFieldList($table) {
         return [
             '.headers off',
             "SELECT name FROM PRAGMA_TABLE_INFO('$table');"
@@ -172,4 +189,14 @@ class Orders {
             $registry->clearNS($namespace);
         };
     }*/
+    
+         //Orders::addField('insee_dc', 'CONCAC TEXT'),
+        /*getFieldList('insee_dc'),
+      function ($res) {
+            array_shift($res);
+            $c=join('||',$res);
+            print_r("UPDATE insee_dc SET CONCAC=$c;");
+            return "UPDATE insee_dc SET CONCAC=$c;";
+        }*/
+     
 }

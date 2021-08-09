@@ -80,8 +80,8 @@ function test_csvManualExport() {
     global $dbName;
     $cli=new SqliteCli($dbName);
     $res=$cli->execute(
-        "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
-        "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
+        "CREATE TABLE simple (id INTEGER PRIMARY KEY, name TEXT);",
+        "INSERT INTO `simple` (name) VALUES ('Paul'), ('Jack'),('Charlie');",
         '.mode csv',
         '.headers on',
         '.separator ,',
@@ -98,7 +98,7 @@ function test_csvAPIExport() {
     $cli=new SqliteCli($dbName);
     $res=$cli->execute(
         [
-            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name TEXT);",
             "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
             Orders::exportCsv('select id,name from simple;','data_bis.csv')
         ]
@@ -128,7 +128,7 @@ function test_csvUpperFolderExport() {
     global $dbName;
     $cli = new SqliteCli($dbName);
     $res=$cli->execute(
-        "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+        "CREATE TABLE simple (id INTEGER PRIMARY KEY, name TEXT);",
         "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
         '.mode csv',
         '.headers on',
@@ -147,7 +147,7 @@ function test_function() {
     $cli=new SqliteCli($dbName);
     $res=$cli->execute(
         [
-            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name TEXT);",
             "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
             "SELECT name from simple where id=1;",
             function ($res) {
@@ -166,7 +166,7 @@ function test_chainedFunctions() {
     $cli=new SqliteCli($dbName);
     $res=$cli->execute(
         [
-            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+            "CREATE TABLE simple (id INTEGER PRIMARY KEY, name TEXT);",
             "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');",
             "SELECT name from simple where id=1;",
             function ($res) {
@@ -199,13 +199,30 @@ function test_registry() {
         (int)$cli->getRegistry('A')[0]===3
     ];
 }
+function test_fillColumn_calc() {
+    global $dbName, $createTable_simple;
+    $cli=new SqliteCli($dbName);
+    $res=$cli->execute(
+        [
+            $createTable_simple,
+            Orders::fillColumn_calc('simple','name',function($res){
+                return join('||',$res);
+            }, Orders::getFieldList('simple')),
+            'SELECT name from simple;'
+        ]
+    );
+    return [
+        __FUNCTION__,
+        join('',$res[1])==='1Paul2Jack3Charlie'
+    ];
+}
 // MAIN
 $tests =[];
 $dbName="test.db";
 $table="addresses_table";
 $up='./up/'.$dbName;
 $createTable_simple= [
-    "CREATE TABLE simple (id INTEGER PRIMARY KEY, name);",
+    "CREATE TABLE simple (id INTEGER PRIMARY KEY, name TEXT);",
     "INSERT INTO simple (name) VALUES ('Paul'), ('Jack'),('Charlie');"
 ];
 $tests[]=test_subArrays();
@@ -223,6 +240,8 @@ $tests[]=test_function();
 unlinkDB();
 $tests[]=test_chainedFunctions();
 $tests[]=test_mergeCsv();
+unlinkDB();
+$tests[]=test_fillColumn_calc();
 unlinkDB();
 $tests[]=test_registry();
 foreach($tests as $t) {
