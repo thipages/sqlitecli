@@ -84,11 +84,17 @@ class Orders {
             return "INSERT INTO '$targetDb' ($propList) select $propList from '$sourceDb';";
         };
     }
+    private static function fillColumn_calc($table, $field, $calcValue) {
+        return function ($res,$registry) use($table,$field,$calcValue) {
+            $c = $calcValue($res, $registry);
+            return "UPDATE $table SET $field=$c;";
+        };
+    }
     // todo : add a parameter to allow fields mapping between csv?
     // todo : add option : merging all fields (the current case) or to get the common set
     public static function mergeCsvList($table,$csvPaths, $delimiter=','){
         $tableIds=[];$orders=[];$delimiters=[];
-        $sourceField='url_csv';
+        $sourceField='slc_sourceId';
         $namespace=__FUNCTION__;
         $KEYS=['INTER', 'DIFF'];
         if (is_string($delimiter)) {
@@ -96,16 +102,16 @@ class Orders {
         } else {
             $delimiters=$delimiter;
         }
-        // Create n-1 temp tables over $table (ref table)
+        // Create n-1 temp tables over a reference : $table
         for ($i=0;$i<count($csvPaths);$i++) {
             $tableIds[]= $i===0?$table:uniqid('temp_');
             $orders[]=Orders::importCsv($tableIds[$i],$csvPaths[$i],$delimiters[$i]);
             $orders[]= Orders::addField($tableIds[$i], "$sourceField TEXT");//$csvPaths[$i]
-            $orders[]=Orders::fillColumn($tableIds[$i],$sourceField,$csvPaths[$i]);
+            $orders[]=Orders::fillColumn($tableIds[$i],$sourceField,$i);
             $orders[]=self::getFieldList($tableIds[$i]);//($namespace.':'.$tableIds[$i]);
             $orders[]=self::registerAs($tableIds[$i]);
         }
-        // Identify the common fields by name
+        // Set INTER AND DIFF to registry
         $orders[]=function ($res,$registry) use ($namespace,$KEYS,$tableIds) {
             $refFields=$registry->get($tableIds[0]);//getNS($namespace)($tableIds[0]);
             $temp=$refFields;
@@ -115,6 +121,7 @@ class Orders {
             $registry->set($KEYS[0],$temp);
             $registry->set($KEYS[1],array_diff($refFields,$temp));
         };
+        // Drop first table columns in excess
         $orders[]=function ($res,$registry) use ($namespace,$table,$KEYS) {
             $q=[];
             // todo : alternative to DROP COLUMN : not available before v3.35.0
@@ -123,14 +130,17 @@ class Orders {
             }
             return $q;
         };
+        // Insert import tables (n>1) in the first table
         for ($i=1;$i<count($csvPaths);$i++) {
             $orders[]=self::_insert_smart($tableIds[$i],$tableIds[0],$KEYS[0]);
             $orders[]="DROP TABLE $tableIds[$i];";
         }
+        // kill gc tables (could be hugh)
         $orders[]='PRAGMA auto_vacuum = FULL;VACUUM;';
         $list=$tableIds;
         $list[]=$KEYS[0];$list[]=$KEYS[1];
         // todo : implement namespace
+        // Remove registry local references
         foreach($list as $el) $orders[]=self::unregister($el);
         return $orders;
     }
@@ -152,12 +162,6 @@ class Orders {
             }
 
         ];
-    }
-    private static function fillColumn_calc($table, $field, $calcValue) {
-        return function ($res,$registry) use($table,$field,$calcValue) {
-            $c = $calcValue($res, $registry);
-            return "UPDATE $table SET $field=$c;";
-        };
     }
     public static function fillColumn($table, $field, $value) {
         return is_callable($value)
