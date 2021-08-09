@@ -205,9 +205,10 @@ function test_fillColumn_calc() {
     $res=$cli->execute(
         [
             $createTable_simple,
-            Orders::fillColumn_calc('simple','name',function($res){
+            Orders::getFieldList('simple'),
+            Orders::fillColumn('simple','name',function($res){
                 return join('||',$res);
-            }, Orders::getFieldList('simple')),
+            }),
             'SELECT name from simple;'
         ]
     );

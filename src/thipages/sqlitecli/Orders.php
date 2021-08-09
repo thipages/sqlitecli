@@ -153,17 +153,16 @@ class Orders {
 
         ];
     }
-    public static function fillColumn_calc($table, $field, $calcValue, $orders) {
-        return [
-            $orders,
-            function ($res,$registry) use($table,$field,$calcValue){
-                $c=$calcValue($res,$registry);
-                return "UPDATE $table SET $field=$c;";
-            }
-        ];
+    private static function fillColumn_calc($table, $field, $calcValue) {
+        return function ($res,$registry) use($table,$field,$calcValue) {
+            $c = $calcValue($res, $registry);
+            return "UPDATE $table SET $field=$c;";
+        };
     }
     public static function fillColumn($table, $field, $value) {
-        return function () use($table,$field,$value){
+        return is_callable($value)
+        ? self::fillColumn_calc($table,$field,$value)
+        : function () use($table,$field,$value){
                 return "UPDATE $table SET $field='$value';";
             };
     }
